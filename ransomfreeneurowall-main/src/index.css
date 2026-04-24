@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RansomFree — Clean professional cybersecurity design system
+   Light surfaces with deep blue accents and yellow highlights.
+   All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Surfaces */
+    --background: 210 20% 98%;
+    --foreground: 222 35% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 35% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 35% 14%;
+
+    --muted: 215 25% 95%;
+    --muted-foreground: 215 16% 45%;
+
+    --surface-soft: 215 30% 96%;
+
+    /* Brand: deep blue */
+    --primary: 222 70% 22%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 222 60% 35%;
+    --primary-tint: 222 60% 95%;
+
+    /* Accent: warm yellow */
+    --accent: 45 100% 55%;
+    --accent-foreground: 222 35% 14%;
+
+    --secondary: 215 25% 93%;
+    --secondary-foreground: 222 35% 14%;
+
+    /* Result colors */
+    --safe: 152 60% 38%;
+    --safe-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 35% 14%;
+    --danger: 0 75% 50%;
+    --danger-foreground: 0 0% 100%;
+
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 20% 88%;
+    --input: 215 20% 90%;
+    --ring: 222 70% 22%;
+
+    --radius: 0.875rem;
+
+    /* Subtle shadows (no neon) */
+    --shadow-sm: 0 1px 2px hsl(222 35% 14% / 0.04);
+    --shadow-card: 0 1px 3px hsl(222 35% 14% / 0.05), 0 1px 2px hsl(222 35% 14% / 0.04);
+    --shadow-elev: 0 10px 30px -12px hsl(222 35% 14% / 0.12);
+
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.15);
+    color: hsl(var(--primary));
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .card-flat {
+    @apply bg-card border border-border rounded-2xl;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-soft {
+    @apply bg-[hsl(var(--surface-soft))] border border-border rounded-2xl;
+  }
+
+  .hero-panel {
+    background:
+      radial-gradient(circle at 18% 22%, hsl(var(--accent) / 0.18), transparent 45%),
+      radial-gradient(circle at 80% 80%, hsl(var(--primary-soft) / 0.6), transparent 55%),
+      linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(222 75% 16%) 100%);
+  }
+
+  .clip-hex {
+    clip-path: polygon(25% 0, 100% 0, 100% 75%, 75% 100%, 0 100%, 0 25%);
+  }
+}
+
+@layer utilities {
+  .text-safe { color: hsl(var(--safe)); }
+  .text-warning { color: hsl(var(--warning)); }
+  .text-danger { color: hsl(var(--danger)); }
+  .bg-safe { background-color: hsl(var(--safe)); }
+  .bg-warning { background-color: hsl(var(--warning)); }
+  .bg-danger { background-color: hsl(var(--danger)); }
+  .border-safe { border-color: hsl(var(--safe)); }
+  .border-warning { border-color: hsl(var(--warning)); }
+  .border-danger { border-color: hsl(var(--danger)); }
+  .bg-safe-soft { background-color: hsl(var(--safe) / 0.1); }
+  .bg-warning-soft { background-color: hsl(var(--warning) / 0.12); }
+  .bg-danger-soft { background-color: hsl(var(--danger) / 0.1); }
+}
