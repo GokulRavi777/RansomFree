@@ -10,11 +10,13 @@
     <link rel="stylesheet" href="./assets/css/styles.css">
 </head>
 <body>
+    <canvas id="bg-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-color: transparent; pointer-events: none;"></canvas>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="./assets/js/threeBg.js"></script>
     <header class="navbar">
         <div class="logo">
-            <div class="shield-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
-            </div>
+            <img src="./assets/logo.png" alt="RansomFree Logo" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;">
             <span>RansomFree</span>
         </div>
         <nav>
@@ -114,6 +116,9 @@
         </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
     <script type="module" src="./assets/js/app.js"></script>
 </body>
 </html>

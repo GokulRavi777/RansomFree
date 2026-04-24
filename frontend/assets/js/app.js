@@ -15,6 +15,38 @@ function init() {
         }
     });
 
+    // Drag and Drop Handling
+    appContainer.addEventListener('dragover', (e) => {
+        const dropzone = e.target.closest('#upload-dropzone');
+        if (dropzone) {
+            e.preventDefault();
+            dropzone.style.backgroundColor = 'rgba(99, 102, 241, 0.1)';
+            dropzone.style.borderColor = 'var(--primary)';
+        }
+    });
+
+    appContainer.addEventListener('dragleave', (e) => {
+        const dropzone = e.target.closest('#upload-dropzone');
+        if (dropzone) {
+            e.preventDefault();
+            dropzone.style.backgroundColor = '';
+            dropzone.style.borderColor = '';
+        }
+    });
+
+    appContainer.addEventListener('drop', (e) => {
+        const dropzone = e.target.closest('#upload-dropzone');
+        if (dropzone) {
+            e.preventDefault();
+            dropzone.style.backgroundColor = '';
+            dropzone.style.borderColor = '';
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                console.log("Files dropped:", e.dataTransfer.files);
+                handleFileSelect(e.dataTransfer.files);
+            }
+        }
+    });
+
     appContainer.addEventListener('click', (e) => {
         const analyzeBtn = e.target.closest('#btn-analyze');
         if (analyzeBtn && !analyzeBtn.disabled) {
@@ -26,6 +58,16 @@ function init() {
         if (resetBtn) {
             console.log("Reset clicked");
             resetApp();
+        }
+
+        const viewMlBtn = e.target.closest('#btn-view-ml');
+        if (viewMlBtn) {
+            import('./state.js').then(m => m.updateState({ view: 'ml_dashboard' }));
+        }
+
+        const backResultBtn = e.target.closest('#btn-back-result');
+        if (backResultBtn) {
+            import('./state.js').then(m => m.updateState({ view: 'result' }));
         }
     });
 

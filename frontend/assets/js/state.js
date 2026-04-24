@@ -3,6 +3,7 @@ export const state = {
     isUploading: false,
     loadingStep: 0,
     results: [],
+    view: 'upload', // 'upload', 'result', 'ml_dashboard'
     error: null,
     currentFileName: ""
 };

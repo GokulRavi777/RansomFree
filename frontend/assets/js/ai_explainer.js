@@ -32,7 +32,7 @@ export function initChatbot(result, container) {
     if (!container) return;
     
     container.innerHTML = `
-        <div class="dashboard-card ai-panel" style="margin-top: 1.5rem; display: flex; flex-direction: column; height: 380px;">
+        <div class="dashboard-card ai-panel" style="margin-top: 0; display: flex; flex-direction: column; height: calc(100vh - 120px); min-height: 500px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);">
             <h3 class="card-title" style="margin-bottom: 0; border-bottom: none; display: flex; align-items: center; gap: 0.5rem;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 Threat Intelligence Chatbot
@@ -70,9 +70,14 @@ export function initChatbot(result, container) {
             msg.style.borderBottomRightRadius = '2px';
         }
         
-        // Convert Markdown-style formatting roughly to HTML for the AI output
-        let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        formattedText = formattedText.replace(/\n/g, '<br>');
+        // Use marked.js if available, otherwise fallback
+        let formattedText = text;
+        if (typeof marked !== 'undefined') {
+            formattedText = DOMPurify.sanitize(marked.parse(text));
+        } else {
+            formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formattedText = formattedText.replace(/\n/g, '<br>');
+        }
 
         msg.innerHTML = formattedText;
         history.appendChild(msg);

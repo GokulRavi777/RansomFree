@@ -11,7 +11,7 @@ export function renderUploadBox(state) {
     
     return `
         <div class="upload-panel">
-            <div class="upload-box-inner">
+            <div id="upload-dropzone" class="upload-box-inner" style="transition: all 0.2s ease;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-bottom:1rem;">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="17 8 12 3 7 8"></polyline>
