@@ -1,8 +1,13 @@
 import os
+from pathlib import Path
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 import orchestrator
+
+# Load .env from project root (one level above the backend/ directory)
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / '.env')
 
 # Serve frontend from the '../frontend' directory at the root URL '/'
 app = Flask(__name__, static_folder='../frontend', static_url_path='/')
@@ -13,6 +18,8 @@ OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), 'outputs')
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+from ai_chat import get_ai_response
 
 @app.route('/', methods=['GET'])
 def index():
@@ -41,6 +48,19 @@ def analyze_endpoint():
              # Cleanup upload after analysis
              if os.path.exists(file_path):
                  os.remove(file_path)
+
+@app.route('/chat', methods=['POST'])
+def chat_endpoint():
+    data = request.get_json()
+    if not data or 'query' not in data or 'analysis_data' not in data:
+        return jsonify({"error": "Invalid request. 'query' and 'analysis_data' are required."}), 400
+    
+    query = data['query']
+    analysis_data = data['analysis_data']
+    
+    response_text = get_ai_response(query, analysis_data)
+    
+    return jsonify({"response": response_text}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

@@ -2,9 +2,12 @@ import os
 import requests
 
 def get_ai_response(query: str, analysis_data: dict) -> str:
-    gemini_key = os.environ.get("GEMINI_API_KEY")
-    openai_key = os.environ.get("OPENAI_API_KEY")
-    
+    """Proxy request to an LLM (Gemini or OpenAI) and return the response.
+    API keys are read from environment variables (GEMINI_API_KEY / OPENAI_API_KEY).
+    """
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    openai_key = os.getenv("OPENAI_API_KEY")
+
     system_prompt = (
         "You are a cybersecurity expert assistant for RansomFree. "
         "Explain the following malware analysis report simply and answer the user's query.\n"
@@ -13,14 +16,12 @@ def get_ai_response(query: str, analysis_data: dict) -> str:
 
     if gemini_key:
         return _call_gemini(query, system_prompt, gemini_key)
-    elif openai_key:
+    if openai_key:
         return _call_openai(query, system_prompt, openai_key)
-    else:
-        return "⚠️ Error: No API keys configured on the server. Please set GEMINI_API_KEY or OPENAI_API_KEY environment variables."
+    return "⚠️ Error: No API keys configured on the server. Please set GEMINI_API_KEY or OPENAI_API_KEY environment variables."
 
 def _call_gemini(query: str, system_prompt: str, api_key: str) -> str:
-    # Using the newer gemini-1.5-flash model, fallback to gemini-pro if needed
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [
@@ -31,7 +32,6 @@ def _call_gemini(query: str, system_prompt: str, api_key: str) -> str:
             }
         ]
     }
-    
     try:
         response = requests.post(url, json=payload, headers=headers)
         response.raise_for_status()
@@ -53,7 +53,6 @@ def _call_openai(query: str, system_prompt: str, api_key: str) -> str:
             {"role": "user", "content": query}
         ]
     }
-    
     try:
         response = requests.post(url, json=payload, headers=headers)
         response.raise_for_status()

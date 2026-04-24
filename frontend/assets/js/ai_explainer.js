@@ -1,3 +1,5 @@
+import { sendChatMessage } from './api.js';
+
 export function generateExplanation(data) {
     const { status, static_analysis, sandbox_analysis } = data;
     
@@ -68,7 +70,11 @@ export function initChatbot(result, container) {
             msg.style.borderBottomRightRadius = '2px';
         }
         
-        msg.innerHTML = text;
+        // Convert Markdown-style formatting roughly to HTML for the AI output
+        let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formattedText = formattedText.replace(/\n/g, '<br>');
+
+        msg.innerHTML = formattedText;
         history.appendChild(msg);
         history.scrollTop = history.scrollHeight;
     };
@@ -77,12 +83,13 @@ export function initChatbot(result, container) {
     const initialText = generateExplanation(result);
     appendMessage(`<strong>Analysis Summary:</strong><br>${initialText}<br><br><em>I am your AI assistant. Ask me anything about this file's threat profile!</em>`, 'bot');
 
-    const handleSend = () => {
+    const handleSend = async () => {
         const text = input.value.trim();
         if (!text) return;
         
         appendMessage(text, 'user');
         input.value = '';
+        btn.disabled = true;
         
         // Add a typing indicator
         const typingId = 'typing-' + Date.now();
@@ -96,53 +103,25 @@ export function initChatbot(result, container) {
         history.appendChild(typingMsg);
         history.scrollTop = history.scrollHeight;
 
-        setTimeout(() => {
+        try {
+            // Call the backend to talk to the real LLM
+            const response = await sendChatMessage(text, result);
+            
             const typingElem = document.getElementById(typingId);
             if(typingElem) typingElem.remove();
-            const response = generateBotResponse(text, result);
+            
             appendMessage(response, 'bot');
-        }, 800);
+        } catch(e) {
+            const typingElem = document.getElementById(typingId);
+            if(typingElem) typingElem.remove();
+            appendMessage("Error communicating with AI server.", 'bot');
+        } finally {
+            btn.disabled = false;
+        }
     };
 
     btn.addEventListener('click', handleSend);
     input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSend();
+        if (e.key === 'Enter' && !btn.disabled) handleSend();
     });
-}
-
-function generateBotResponse(query, data) {
-    const q = query.toLowerCase();
-    
-    if (q.includes('entropy')) {
-        const ent = data.static_analysis?.entropy?.toFixed(2) || 0;
-        return `<strong>Entropy</strong> measures the randomness of the file data. This file has an entropy of <strong>${ent}</strong>. High entropy (above 7.0) usually means the file is packed or encrypted—a common tactic used by ransomware to evade antivirus scanners.`;
-    }
-    
-    if (q.includes('syscall') || q.includes('system call') || q.includes('dynamic') || q.includes('behavior')) {
-        const calls = data.sandbox_analysis?.syscalls || "none";
-        if (calls === "none" || calls.trim() === "") {
-            return `I didn't detect any significant system calls during the sandbox execution. This might mean the malware detected the sandbox and refused to run, or it's a benign file.`;
-        }
-        return `<strong>System calls</strong> are requests the program makes to the OS. During execution, this file generated system calls that match common ransomware patterns (like deleting shadow copies or iterating through files).`;
-    }
-    
-    if (q.includes('keyword') || q.includes('string') || q.includes('static')) {
-        const kw = data.static_analysis?.keywords || [];
-        if (kw.length > 0) {
-            return `I found the following suspicious strings inside the file's binary code: <strong>${kw.join(", ")}</strong>. These words are frequently found in ransomware notes or cryptographic routines.`;
-        }
-        return `I didn't find any obviously suspicious keywords like 'encrypt' or 'bitcoin' in this file's static strings.`;
-    }
-
-    if (q.includes('safe') || q.includes('fix') || q.includes('what should i do') || q.includes('recommend')) {
-        if (data.status === 'MALICIOUS') {
-            return `🚨 <strong>DO NOT RUN THIS FILE!</strong> It exhibits strong ransomware traits. You should delete it immediately and run a full system antivirus scan.`;
-        } else if (data.status === 'SUSPICIOUS') {
-            return `⚠️ <strong>Exercise caution.</strong> While it doesn't have all the hallmarks of a known threat, its behavior is abnormal. Do not execute it on your host machine.`;
-        } else {
-            return `✅ Based on my analysis, this file appears safe. However, always ensure you download files from trusted sources.`;
-        }
-    }
-    
-    return `I'm an AI assistant focused on this malware analysis. You can ask me to explain its "entropy", "syscalls", "keywords", or ask "what should I do?".`;
 }
